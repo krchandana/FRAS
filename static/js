@@ -1,0 +1,42 @@
+// Admin login validation
+function validateLogin(){
+
+let username = document.getElementById("username").value;
+let password = document.getElementById("password").value;
+
+if(username === "" || password === ""){
+alert("Please enter username and password");
+return false;
+}
+
+return true;
+}
+
+
+// Student registration validation
+function validateRegister(){
+
+let id = document.getElementById("id").value;
+let name = document.getElementById("name").value;
+let batch = document.getElementById("batch").value;
+
+if(id === "" || name === "" || batch === ""){
+alert("All fields are required");
+return false;
+}
+
+alert("Student Registered Successfully");
+return true;
+}
+
+
+// Logout confirmation
+function confirmLogout(){
+
+let confirmAction = confirm("Are you sure you want to logout?");
+
+if(confirmAction){
+window.location.href = "/";
+}
+
+}

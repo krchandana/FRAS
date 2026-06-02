@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Voice Check-in</title>
+<style>
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0; padding: 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 24px auto; background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+    h2 { margin-top: 0; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .form-group { display: flex; flex-direction: column; }
+    label { font-weight: bold; margin-bottom: 6px; font-size: 14px; }
+    input, select { padding: 9px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .panel { background: #f8f9fa; border-left: 4px solid #667eea; border-radius: 8px; padding: 14px; margin-top: 14px; }
+    .btn { border: none; border-radius: 6px; padding: 10px 14px; font-weight: bold; cursor: pointer; color: #fff; background: #667eea; }
+    .btn.secondary { background: #6b7280; }
+    .btn.success { background: #15803d; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .status { margin-top: 10px; padding: 10px; border-radius: 6px; background: #eef2ff; font-size: 14px; }
+    .back-link { display: inline-block; margin-top: 16px; text-decoration: none; color: #374151; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Voice-Based Attendance Check-in</h2>
+
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="program">Program</label>
+                <select id="program" name="program" required onchange="updateYears()">
+                    <option value="">Select Program</option>
+                    {% for program in programs %}
+                    <option value="{{ program }}" {% if selected_program == program %}selected{% endif %}>{{ program }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="year">Year</label>
+                <select id="year" name="year" required>
+                    <option value="">Select Year</option>
+                    {% if selected_program and selected_program in programs %}
+                        {% for y in programs[selected_program].years %}
+                        <option value="{{ y }}" {% if selected_year and selected_year|int == y %}selected{% endif %}>Year {{ y }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="section">Section</label>
+                <select id="section" name="section" required>
+                    <option value="">Select Section</option>
+                    <option value="A" {% if selected_section == 'A' %}selected{% endif %}>Section A</option>
+                    <option value="B" {% if selected_section == 'B' %}selected{% endif %}>Section B</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required value="{{ selected_date or today_date }}">
+            </div>
+            <div class="form-group">
+                <label for="time">Time</label>
+                <input type="time" id="time" name="time" required value="{{ selected_time or today_time }}">
+            </div>
+            <div class="form-group">
+                <label for="subject_name">Subject</label>
+                <input type="text" id="subject_name" name="subject_name" required value="{{ selected_subject_name or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="period_from">Period From</label>
+                <input type="time" id="period_from" name="period_from" required value="{{ selected_period_from or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="period_to">Period To</label>
+                <input type="time" id="period_to" name="period_to" required value="{{ selected_period_to or '' }}">
+            </div>
+        </div>
+        <button class="btn" type="submit">Load Voice Check-in</button>
+    </form>
+
+    <div class="panel">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="student_id">Student ID</label>
+                <input type="text" id="student_id" placeholder="Enter student ID">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label for="spoken_text">Recognized Speech</label>
+                <input type="text" id="spoken_text" placeholder="Click Start Voice Recognition">
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn secondary" type="button" id="startVoiceBtn">Start Voice Recognition</button>
+            <button class="btn success" type="button" id="verifyBtn">Verify & Mark Present</button>
+        </div>
+        <div class="status" id="voiceStatus">Say student passphrase clearly after pressing start.</div>
+    </div>
+
+    <a class="back-link" href="/dashboard">Back to Dashboard</a>
+</div>
+
+<script>
+    const programs = {{ programs | tojson }};
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    function updateYears() {
+        const program = document.getElementById('program').value;
+        const yearSelect = document.getElementById('year');
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        if (program && programs[program]) {
+            programs[program].years.forEach((year) => {
+                const opt = document.createElement('option');
+                opt.value = year;
+                opt.textContent = 'Year ' + year;
+                yearSelect.appendChild(opt);
+            });
+        }
+    }
+
+    const voiceStatus = document.getElementById('voiceStatus');
+    const spokenInput = document.getElementById('spoken_text');
+    const startVoiceBtn = document.getElementById('startVoiceBtn');
+    const verifyBtn = document.getElementById('verifyBtn');
+
+    if (!SpeechRecognition) {
+        startVoiceBtn.disabled = true;
+        voiceStatus.textContent = 'Speech recognition is not supported in this browser.';
+    } else {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        startVoiceBtn.addEventListener('click', () => {
+            voiceStatus.textContent = 'Listening...';
+            recognition.start();
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript || '';
+            spokenInput.value = transcript;
+            voiceStatus.textContent = 'Captured: ' + transcript;
+        };
+
+        recognition.onerror = () => {
+            voiceStatus.textContent = 'Could not recognize speech. Try again.';
+        };
+    }
+
+    function to12Hour(value) {
+        const parts = value.split(':');
+        let hour = parseInt(parts[0], 10);
+        const minute = parts[1];
+        const suffix = hour >= 12 ? 'pm' : 'am';
+        hour = hour % 12;
+        if (hour === 0) hour = 12;
+        return `${hour}:${minute} ${suffix}`;
+    }
+
+    verifyBtn.addEventListener('click', async () => {
+        const studentId = document.getElementById('student_id').value.trim();
+        const spokenText = document.getElementById('spoken_text').value.trim();
+        const program = document.getElementById('program').value;
+        const year = document.getElementById('year').value;
+        const section = document.getElementById('section').value;
+        const date = document.getElementById('date').value;
+        const time = document.getElementById('time').value;
+        const subjectName = document.getElementById('subject_name').value.trim();
+        const periodFrom = document.getElementById('period_from').value;
+        const periodTo = document.getElementById('period_to').value;
+
+        if (!studentId || !spokenText || !program || !year || !section || !date || !time || !subjectName || !periodFrom || !periodTo) {
+            voiceStatus.textContent = 'Please fill all fields and capture speech first.';
+            return;
+        }
+        if (periodFrom >= periodTo) {
+            voiceStatus.textContent = 'Period "to" must be later than "from".';
+            return;
+        }
+
+        const periodDuration = `from ${to12Hour(periodFrom)} to ${to12Hour(periodTo)}`;
+        voiceStatus.textContent = 'Verifying voice passphrase...';
+
+        try {
+            const response = await fetch('/api/voice_checkin', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    student_id: studentId,
+                    spoken_text: spokenText,
+                    program: program,
+                    year: year,
+                    section: section,
+                    date: date,
+                    time: time,
+                    subject_name: subjectName,
+                    period_duration: periodDuration
+                })
+            });
+            const data = await response.json();
+            if (data.success) {
+                voiceStatus.textContent = data.message;
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                }
+            } else {
+                voiceStatus.textContent = data.message || 'Voice check-in failed.';
+            }
+        } catch (err) {
+            voiceStatus.textContent = 'Error: ' + err.message;
+        }
+    });
+</script>
+</body>
+</html>

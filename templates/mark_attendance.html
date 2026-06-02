@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Mark Attendance</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+    }
+    
+    .container {
+        max-width: 900px;
+        margin: 30px auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h2 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+    
+    .filter-section {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border-left: 4px solid #007BFF;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    label {
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    input, select {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    input:focus, select:focus {
+        outline: none;
+        border-color: #007BFF;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    
+    button {
+        padding: 8px 20px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        align-self: flex-end;
+        margin-top: 23px;
+    }
+    
+    button:hover {
+        background-color: #0056b3;
+    }
+    
+    .students-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    .students-table th {
+        background-color: #007BFF;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-weight: bold;
+    }
+    
+    .students-table td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .students-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .btn-primary {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    .btn-primary:hover {
+        background-color: #218838;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+    
+    .message {
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #007BFF;
+        text-decoration: none;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    .no-students {
+        text-align: center;
+        color: #999;
+        padding: 40px;
+        font-size: 16px;
+    }
+    
+    @media print {
+        body {
+            background: white !important;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: none;
+            margin: 0;
+            background: white !important;
+            box-shadow: none !important;
+        }
+        
+        .filter-section,
+        .action-buttons,
+        .back-link {
+            display: none !important;
+        }
+        
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .students-table th,
+        .students-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .students-table th {
+            background: #f0f0f0 !important;
+            -webkit-print-color-adjust: exact;
+        }
+        
+        h2, h3 {
+            color: black !important;
+            page-break-after: avoid;
+        }
+        
+        .checkbox-group,
+        .status-select {
+            display: none;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Mark Attendance</h2>
+    
+    {% if error %}
+    <div class="message error">{{ error }}</div>
+    {% endif %}
+    
+    <div class="filter-section">
+        <form method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="program">Program:</label>
+                    <select id="program" name="program" required onchange="updateYears()">
+                        <option value="">Select Program</option>
+                        {% for program in programs %}
+                        <option value="{{ program }}" {% if selected_program == program %}selected{% endif %}>{{ program }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="year">Year:</label>
+                    <select id="year" name="year" required>
+                        <option value="">Select Year</option>
+                        {% if selected_program and selected_program in programs %}
+                            {% for y in programs[selected_program].years %}
+                            <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>Year {{ y }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="section">Section:</label>
+                    <select id="section" name="section" required>
+                        <option value="">Select Section</option>
+                        <option value="A" {% if selected_section == 'A' %}selected{% endif %}>Section A</option>
+                        <option value="B" {% if selected_section == 'B' %}selected{% endif %}>Section B</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required value="{{ selected_date or today_date }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="time">Time:</label>
+                    <input type="time" id="time" name="time" required value="{{ selected_time or today_time }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="subject_name">Subject Name:</label>
+                    <input type="text" id="subject_name" name="subject_name" required value="{{ selected_subject_name or '' }}" placeholder="e.g. Data Structures">
+                </div>
+
+                <div class="form-group">
+                    <label for="period_from">Period From:</label>
+                    <input type="time" id="period_from" name="period_from" required value="{{ selected_period_from or '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="period_to">Period To:</label>
+                    <input type="time" id="period_to" name="period_to" required value="{{ selected_period_to or '' }}">
+                </div>
+                
+                <button type="submit">Load Students</button>
+            </div>
+        </form>
+    </div>
+    
+    {% if students %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Mark Attendance - {{ selected_program }} Year {{ selected_year }} Section {{ selected_section }} ({{ selected_date or today_date }} {{ selected_time or today_time }}) | {{ selected_subject_name }} | {{ selected_period_duration }}</h3>
+        <button onclick="window.print()" class="btn btn-secondary" style="margin: 0;">🖨️ Print Report</button>
+    </div>
+    
+    <form id="attendanceForm">
+        <table class="students-table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>
+                        <input type="checkbox" class="student-checkbox" value="{{ student[0] }}" data-name="{{ student[1] }}">
+                    </td>
+                    <td>{{ student[0] }}</td>
+                    <td>{{ student[1] }}</td>
+                    <td>{{ student[5] if student[5] else '-' }}</td>
+                    <td>
+                        <select class="status-select" name="status_{{ student[0] }}">
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="action-buttons">
+            <button type="button" class="btn-primary" onclick="markAttendanceSelected('Present')">Mark Selected as Present</button>
+            <button type="button" class="btn-primary" onclick="markAttendanceSelected('Absent')">Mark Selected as Absent</button>
+            <button type="button" class="btn-secondary" onclick="selectAllStudents()">Select All</button>
+            <button type="button" class="btn-secondary" onclick="deselectAllStudents()">Deselect All</button>
+        </div>
+    </form>
+    
+    {% elif selected_program %}
+    <div class="no-students">No students found for the selected criteria. Please register students first.</div>
+    {% endif %}
+    
+    <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+</div>
+
+<script>
+    const programs = {{ programs | tojson }};
+    
+    function updateYears() {
+        const program = document.getElementById('program').value;
+        const yearSelect = document.getElementById('year');
+        
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        
+        if (program && programs[program]) {
+            programs[program].years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = 'Year ' + year;
+                yearSelect.appendChild(option);
+            });
+        }
+    }
+    
+    function selectAllStudents() {
+        document.querySelectorAll('.student-checkbox').forEach(checkbox => {
+            checkbox.checked = true;
+        });
+    }
+    
+    function deselectAllStudents() {
+        document.querySelectorAll('.student-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    }
+    
+    function markAttendanceSelected(status) {
+        const selectedStudents = Array.from(document.querySelectorAll('.student-checkbox:checked'))
+            .map(checkbox => checkbox.value);
+        
+        if (selectedStudents.length === 0) {
+            alert('Please select at least one student');
+            return;
+        }
+        
+        const selectedDate = document.getElementById('date').value;
+        if (!selectedDate) {
+            alert('Please select a date');
+            return;
+        }
+
+        const selectedTime = document.getElementById('time').value;
+        if (!selectedTime) {
+            alert('Please select a time');
+            return;
+        }
+
+        const subjectName = document.getElementById('subject_name').value.trim();
+        if (!subjectName) {
+            alert('Please enter subject name');
+            return;
+        }
+
+        const periodFrom = document.getElementById('period_from').value;
+        const periodTo = document.getElementById('period_to').value;
+        if (!periodFrom || !periodTo) {
+            alert('Please select period from and to times');
+            return;
+        }
+        if (periodFrom >= periodTo) {
+            alert('Period "to" time must be later than "from" time');
+            return;
+        }
+
+        function to12Hour(value) {
+            const [hourStr, minute] = value.split(':');
+            let hour = parseInt(hourStr, 10);
+            const suffix = hour >= 12 ? 'pm' : 'am';
+            hour = hour % 12;
+            if (hour === 0) hour = 12;
+            return `${hour}:${minute} ${suffix}`;
+        }
+        const periodDuration = `from ${to12Hour(periodFrom)} to ${to12Hour(periodTo)}`;
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        selectedStudents.forEach(studentId => {
+            fetch('/api/mark_attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    status: status,
+                    date: selectedDate,
+                    time: selectedTime,
+                    subject_name: subjectName,
+                    period_duration: periodDuration
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                }
+                
+                if (successCount + errorCount === selectedStudents.length) {
+                    if (successCount > 0) {
+                        const program = document.getElementById('program').value;
+                        const year = document.getElementById('year').value;
+                        const section = document.getElementById('section').value;
+                        const params = new URLSearchParams({
+                            source: 'manual',
+                            program: program,
+                            year: year,
+                            section: section,
+                            date: selectedDate,
+                            time: selectedTime,
+                            subject_name: subjectName,
+                            period_duration: periodDuration
+                        });
+                        window.location.href = '/attendance_result?' + params.toString();
+                    } else {
+                        alert(`Attendance marking failed for all selected students (${errorCount})`);
+                    }
+                }
+            });
+        });
+    }
+</script>
+
+</body>
+</html>

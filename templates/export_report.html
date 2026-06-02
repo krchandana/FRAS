@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Export Attendance Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .export-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .export-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #b21f2d;
+        }
+
+        select, input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input[type="radio"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .radio-option label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-export {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background-color: #5568d3;
+        }
+
+        .btn-reset {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #5a6268;
+        }
+
+        .info-section {
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .info-section p {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .info-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .export-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .export-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .export-icon {
+            font-size: 24px;
+        }
+
+        .export-description {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #764ba2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .back-button:hover {
+            background-color: #5f3a7d;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💾 Export Attendance Report</h1>
+
+        <div class="info-section">
+            <h3>📋 About This Feature</h3>
+            <p>Export your attendance data in CSV or Excel format for further analysis and record keeping.</p>
+            <p><strong>Choose a report type:</strong> Daily (specific section), Monthly (percentage), or Complete (all records)</p>
+        </div>
+
+        <form method="POST">
+            <!-- Daily Report -->
+            <div class="export-card">
+                <h3>
+                    <span class="export-icon">📅</span>
+                    Daily Attendance Report
+                </h3>
+                <p class="export-description">Export attendance for a specific section on a specific date or date range</p>
+
+                <fieldset style="border: none; padding: 0;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="daily_program">Program</label>
+                            <select id="daily_program" name="daily_program" onchange="updateDailyYears()">
+                                <option value="">Select Program</option>
+                                {% for prog in programs %}
+                                    <option value="{{ prog }}">{{ prog }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="daily_year">Year</label>
+                            <select id="daily_year" name="daily_year" onchange="updateDailySections()">
+                                <option value="">Select Year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="daily_section">Section</label>
+                            <select id="daily_section" name="daily_section">
+                                <option value="">Select Section</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="daily_start_date">Start Date</label>
+                            <input type="date" id="daily_start_date" name="daily_start_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="daily_end_date">End Date</label>
+                            <input type="date" id="daily_end_date" name="daily_end_date">
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Monthly Report -->
+            <div class="export-card">
+                <h3>
+                    <span class="export-icon">📊</span>
+                    Monthly Attendance Percentage Report
+                </h3>
+                <p class="export-description">Export monthly attendance percentage for all students in a program/year</p>
+
+                <fieldset style="border: none; padding: 0;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="monthly_program">Program</label>
+                            <select id="monthly_program" name="monthly_program" onchange="updateMonthlyYears()">
+                                <option value="">Select Program</option>
+                                {% for prog in programs %}
+                                    <option value="{{ prog }}">{{ prog }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthly_year">Year</label>
+                            <select id="monthly_year" name="monthly_year" onchange="updateMonthlySections()">
+                                <option value="">Select Year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthly_section">Section</label>
+                            <select id="monthly_section" name="monthly_section">
+                                <option value="">Select Section</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthly_month">Month</label>
+                            <select id="monthly_month" name="monthly_month">
+                                <option value="">Select Month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthly_year_val">Calendar Year</label>
+                            <select id="monthly_year_val" name="monthly_year_val">
+                                <option value="">Select Year</option>
+                                {% for y in range(2023, 2027) %}
+                                    <option value="{{ y }}">{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- Export Options -->
+            <div class="export-section">
+                <h2>Export Options</h2>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Report Type <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="report_daily" name="report_type" value="daily" checked>
+                            <label for="report_daily">Daily Report</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="report_monthly" name="report_type" value="monthly">
+                            <label for="report_monthly">Monthly Report</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="report_full" name="report_type" value="full">
+                            <label for="report_full">Complete Export</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Export Format <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="format_csv" name="export_type" value="csv" checked>
+                            <label for="format_csv">CSV (.csv)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="format_excel" name="export_type" value="excel">
+                            <label for="format_excel">Excel (.xlsx)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-export">📥 Download Report</button>
+                    <button type="reset" class="btn-reset">↺ Clear</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="footer">
+            <a href="/dashboard" class="back-button">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const PROGRAMS = {{ programs | tojson }};
+
+        function updateDailyYears() {
+            const program = document.getElementById('daily_program').value;
+            const yearSelect = document.getElementById('daily_year');
+            
+            if (!program) {
+                yearSelect.innerHTML = '<option value="">Select Year</option>';
+                updateDailySections();
+                return;
+            }
+            
+            const years = PROGRAMS[program].years;
+            let yearHtml = '<option value="">Select Year</option>';
+            years.forEach(y => {
+                yearHtml += `<option value="${y}">${y}</option>`;
+            });
+            yearSelect.innerHTML = yearHtml;
+            updateDailySections();
+        }
+
+        function updateDailySections() {
+            const program = document.getElementById('daily_program').value;
+            const year = document.getElementById('daily_year').value;
+            const sectionSelect = document.getElementById('daily_section');
+            
+            if (!program || !year) {
+                sectionSelect.innerHTML = '<option value="">Select Section</option>';
+                return;
+            }
+            
+            const sections = PROGRAMS[program].sections;
+            let sectionHtml = '<option value="">Select Section</option>';
+            sections.forEach(s => {
+                sectionHtml += `<option value="${s}">${s}</option>`;
+            });
+            sectionSelect.innerHTML = sectionHtml;
+        }
+
+        function updateMonthlyYears() {
+            const program = document.getElementById('monthly_program').value;
+            const yearSelect = document.getElementById('monthly_year');
+            
+            if (!program) {
+                yearSelect.innerHTML = '<option value="">Select Year</option>';
+                updateMonthlySections();
+                return;
+            }
+            
+            const years = PROGRAMS[program].years;
+            let yearHtml = '<option value="">Select Year</option>';
+            years.forEach(y => {
+                yearHtml += `<option value="${y}">${y}</option>`;
+            });
+            yearSelect.innerHTML = yearHtml;
+            updateMonthlySections();
+        }
+
+        function updateMonthlySections() {
+            const program = document.getElementById('monthly_program').value;
+            const year = document.getElementById('monthly_year').value;
+            const sectionSelect = document.getElementById('monthly_section');
+
+            if (!program || !year) {
+                sectionSelect.innerHTML = '<option value="">Select Section</option>';
+                return;
+            }
+
+            const sections = PROGRAMS[program].sections;
+            let sectionHtml = '<option value="">Select Section</option>';
+            sections.forEach(s => {
+                sectionHtml += `<option value="${s}">${s}</option>`;
+            });
+            sectionSelect.innerHTML = sectionHtml;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('daily_program').addEventListener('change', updateDailyYears);
+            document.getElementById('monthly_program').addEventListener('change', updateMonthlyYears);
+            document.getElementById('monthly_year').addEventListener('change', updateMonthlySections);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Attendance Result</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+    }
+    .container {
+        max-width: 1000px;
+        margin: 30px auto;
+        background: white;
+        border-radius: 10px;
+        padding: 24px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+    h2, h3 {
+        margin-top: 0;
+    }
+    .summary {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 18px;
+    }
+    .stats {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .pill {
+        background: #eef2ff;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-weight: bold;
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
+    th {
+        background: #f2f2f2;
+    }
+    .present { color: #1f7a37; font-weight: bold; }
+    .absent { color: #b4232f; font-weight: bold; }
+    .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+    .btn {
+        display: inline-block;
+        text-decoration: none;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-weight: bold;
+        cursor: pointer;
+        color: white;
+        background: #667eea;
+    }
+    .btn.secondary { background: #6c757d; }
+    @media print {
+        body { background: white; padding: 0; }
+        .container { box-shadow: none; margin: 0; }
+        .actions { display: none; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Attendance Processed</h2>
+
+    <div class="summary">
+        {% if source == 'photo' %}
+        <h3>Faces Detected: {{ faces_detected }} | Present: {{ present_count }} | Absent: {{ absent_count }}</h3>
+        {% else %}
+        <h3>Attendance Summary | Present: {{ present_count }} | Absent: {{ absent_count }}</h3>
+        {% endif %}
+        <div class="stats">
+            <span class="pill">{{ program }} Year {{ year }} Section {{ section }}</span>
+            <span class="pill">{{ date }} {{ selected_time }}</span>
+            <span class="pill">Subject: {{ subject_name }}</span>
+            <span class="pill">Period: {{ period_duration }}</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in records %}
+            <tr>
+                <td>{{ rec.student_id }}</td>
+                <td>{{ rec.name }}</td>
+                <td class="{{ 'present' if rec.status == 'Present' else 'absent' }}">{{ rec.status }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">No attendance records were found for this sheet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="actions">
+        <button class="btn" onclick="window.print()">Print Attendance Sheet</button>
+        <a class="btn secondary" href="/dashboard">Back to Dashboard</a>
+        <a class="btn secondary" href="{{ '/photo_attendance' if source == 'photo' else '/mark_attendance' }}">Back</a>
+    </div>
+</div>
+</body>
+</html>

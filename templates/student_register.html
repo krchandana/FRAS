@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Registration</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+    }
+
+    .face-capture-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #667eea;
+    }
+
+    .face-capture-section h3 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .camera-container {
+        text-align: center;
+        margin: 15px 0;
+    }
+
+    video, canvas, #facePreview {
+        max-width: 300px;
+        width: 100%;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+    }
+
+    #facePreview {
+        display: none;
+    }
+
+    #facePreview.show {
+        display: block;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 15px 0;
+    }
+
+    button, .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #667eea;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #764ba2;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .message {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .warning {
+        background-color: #fff3cd;
+        color: #664d03;
+        border: 1px solid #ffe69c;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+
+    #faceStatus {
+        margin-top: 10px;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    .camera-help {
+        display: none;
+        margin-top: 15px;
+        background: #fff3cd;
+        border: 1px solid #ffe69c;
+        color: #664d03;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .camera-help h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+    }
+
+    .camera-help ol {
+        margin: 0 0 0 18px;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h2>Student Registration</h2>
+
+    {% if success %}
+    <div class="message success">{{ success }}</div>
+    {% if email_warning %}
+    <div class="message warning">{{ email_warning }}</div>
+    {% endif %}
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/student_register" class="back-link">&#8635; Back to Registration</a>
+    </div>
+    {% else %}
+
+    {% if error %}
+    <div class="message error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="student_id">Student ID:</label>
+            <input type="text" id="student_id" name="student_id" required>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="program">Program:</label>
+                <select id="program" name="program" required onchange="updateYears()">
+                    <option value="">Select Program</option>
+                    {% for program in programs %}
+                    <option value="{{ program }}" {% if selected_program == program %}selected{% endif %}>{{ program }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="year">Year:</label>
+                <select id="year" name="year" required>
+                    <option value="">Select Year</option>
+                    {% if selected_program and selected_program in programs %}
+                        {% for y in programs[selected_program].years %}
+                        <option value="{{ y }}" {% if selected_year and selected_year|int == y %}selected{% endif %}>Year {{ y }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="section">Section:</label>
+            <select id="section" name="section" required>
+                <option value="">Select Section</option>
+                <option value="A" {% if selected_section == 'A' %}selected{% endif %}>Section A</option>
+                <option value="B" {% if selected_section == 'B' %}selected{% endif %}>Section B</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="voice_passphrase">Voice Passphrase (for voice check-in):</label>
+            <input type="text" id="voice_passphrase" name="voice_passphrase" placeholder="e.g. my voice phrase 123">
+        </div>
+
+        <div class="face-capture-section">
+            <h3>Face Capture</h3>
+            <p>Please provide your face image for attendance recognition using either method below.</p>
+
+            <div style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 5px; border: 1px solid #e9ecef;">
+                <h4 style="margin: 0 0 10px 0; color: #333;">Upload Photo</h4>
+                <input type="file" id="photoUpload" accept="image/*" style="margin-bottom: 10px;">
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="previewUploadedPhoto()">Preview Photo</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 15px 0; color: #666; font-weight: bold;">OR</div>
+
+            <div style="padding: 15px; background: white; border-radius: 5px; border: 1px solid #e9ecef;">
+                <h4 style="margin: 0 0 10px 0; color: #333;">Use Webcam</h4>
+                <div class="camera-container">
+                    <video id="camera" autoplay style="display: none;"></video>
+                    <canvas id="faceCanvas" style="display: none;"></canvas>
+                    <img id="facePreview" alt="Face preview">
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" onclick="openCamera()" id="startCameraBtn">Start Camera</button>
+                    <button type="button" class="btn btn-success" onclick="captureFace()" id="captureBtn" style="display: none;">Capture</button>
+                    <button type="button" class="btn btn-secondary" onclick="recaptureFace()" id="recaptureBtn" style="display: none;">Recapture</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeCamera()" id="closeBtn" style="display: none;">Close Camera</button>
+                </div>
+
+                <div id="cameraHelp" class="camera-help">
+                    <h4>Camera Permission Fix</h4>
+                    <ol>
+                        <li>Click the lock/info icon near the browser URL.</li>
+                        <li>Set Camera to Allow for this site.</li>
+                        <li>Reload this page and click Start Camera again.</li>
+                        <li>If still blocked, open browser camera settings and remove this site from blocked list.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <input type="hidden" id="faceImage" name="face_image">
+            <div id="faceStatus"></div>
+        </div>
+
+        <button type="submit">Register Student</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/" class="back-link">&#8592; Back to Home</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    const programs = {{ programs | tojson }};
+    let stream = null;
+
+    function updateYears() {
+        const program = document.getElementById('program').value;
+        const yearSelect = document.getElementById('year');
+
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+
+        if (program && programs[program]) {
+            programs[program].years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = 'Year ' + year;
+                yearSelect.appendChild(option);
+            });
+        }
+    }
+
+    async function openCamera() {
+        const camera = document.getElementById('camera');
+        const captureBtn = document.getElementById('captureBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const recaptureBtn = document.getElementById('recaptureBtn');
+        const facePreview = document.getElementById('facePreview');
+        const faceStatus = document.getElementById('faceStatus');
+
+        try {
+            hideCameraHelp();
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                faceStatus.innerHTML = '<span style="color: #dc3545;">Camera API is not supported in this browser.</span>';
+                return;
+            }
+            if (!window.isSecureContext) {
+                faceStatus.innerHTML = '<span style="color: #dc3545;">Camera needs a secure page. Open this site with localhost or 127.0.0.1, or upload a photo instead.</span>';
+                showCameraHelp();
+                return;
+            }
+
+            closeCamera();
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                    audio: false
+                });
+            } catch (err) {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            }
+
+            camera.srcObject = stream;
+            camera.style.display = 'block';
+            facePreview.classList.remove('show');
+            captureBtn.style.display = 'inline-block';
+            closeBtn.style.display = 'inline-block';
+            recaptureBtn.style.display = 'none';
+            faceStatus.innerHTML = '<span style="color: #28a745;">Camera started successfully</span>';
+        } catch (err) {
+            if (err.name === 'NotAllowedError') {
+                faceStatus.innerHTML = '<span style="color: #dc3545;">Camera permission is blocked. Allow camera in browser settings and refresh.</span>';
+                showCameraHelp();
+            } else {
+                faceStatus.innerHTML = '<span style="color: #dc3545;">Camera not available: ' + err.message + '</span>';
+            }
+        }
+    }
+
+    function showCameraHelp() {
+        const help = document.getElementById('cameraHelp');
+        if (help) help.style.display = 'block';
+    }
+
+    function hideCameraHelp() {
+        const help = document.getElementById('cameraHelp');
+        if (help) help.style.display = 'none';
+    }
+
+    function captureFace() {
+        const camera = document.getElementById('camera');
+        const canvas = document.getElementById('faceCanvas');
+        const facePreview = document.getElementById('facePreview');
+        const faceImage = document.getElementById('faceImage');
+        const faceStatus = document.getElementById('faceStatus');
+
+        if (!camera.srcObject) return;
+
+        const context = canvas.getContext('2d');
+        canvas.width = camera.videoWidth;
+        canvas.height = camera.videoHeight;
+        context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+
+        const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+        faceImage.value = dataURL;
+
+        facePreview.src = dataURL;
+        facePreview.classList.add('show');
+        faceStatus.innerHTML = '<span style="color: #28a745;">Face captured successfully</span>';
+
+        closeCamera();
+        document.getElementById('recaptureBtn').style.display = 'inline-block';
+    }
+
+    function recaptureFace() {
+        document.getElementById('faceImage').value = '';
+        document.getElementById('facePreview').classList.remove('show');
+        document.getElementById('faceStatus').innerHTML = '<span style="color: #666;">Recapture mode: start camera again.</span>';
+        openCamera();
+    }
+
+    function closeCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        document.getElementById('camera').style.display = 'none';
+        document.getElementById('captureBtn').style.display = 'none';
+        document.getElementById('closeBtn').style.display = 'none';
+    }
+
+    function previewUploadedPhoto() {
+        const fileInput = document.getElementById('photoUpload');
+        const facePreview = document.getElementById('facePreview');
+        const faceImage = document.getElementById('faceImage');
+        const faceStatus = document.getElementById('faceStatus');
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            faceStatus.innerHTML = '<span style="color: #dc3545;">Please select a photo file first</span>';
+            return;
+        }
+
+        const file = fileInput.files[0];
+
+        if (!file.type.startsWith('image/')) {
+            faceStatus.innerHTML = '<span style="color: #dc3545;">Please select a valid image file</span>';
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            faceStatus.innerHTML = '<span style="color: #dc3545;">File size too large. Please select an image under 5MB</span>';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const dataURL = e.target.result;
+            faceImage.value = dataURL;
+            facePreview.src = dataURL;
+            facePreview.classList.add('show');
+            closeCamera();
+            document.getElementById('recaptureBtn').style.display = 'inline-block';
+            faceStatus.innerHTML = '<span style="color: #28a745;">Photo uploaded successfully</span>';
+        };
+
+        reader.onerror = function() {
+            faceStatus.innerHTML = '<span style="color: #dc3545;">Error reading file. Please try again</span>';
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        const programSelect = document.getElementById('program');
+        const yearSelect = document.getElementById('year');
+
+        if (programSelect && yearSelect && programSelect.value) {
+            const program = programSelect.value;
+            if (program && programs[program]) {
+                yearSelect.innerHTML = '<option value="">Select Year</option>';
+                programs[program].years.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = 'Year ' + year;
+                    yearSelect.appendChild(option);
+                });
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const year = urlParams.get('year');
+                if (year) {
+                    yearSelect.value = year;
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monthly Attendance Percentage Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+        }
+
+        .stats-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-summary h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-item strong {
+            display: block;
+            color: #333;
+        }
+
+        .stat-item span {
+            color: #666;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .percentage {
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .percentage.high {
+            color: #1e7e34;
+        }
+
+        .percentage.medium {
+            color: #f39c12;
+        }
+
+        .percentage.low {
+            color: #b21f2d;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .no-data {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #764ba2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .back-button:hover {
+            background-color: #5f3a7d;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .filter-section,
+            .back-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📈 Monthly Attendance Percentage Report</h1>
+
+        <div class="filter-section">
+            <h2>Generate Report</h2>
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="program">Program *</label>
+                        <select id="program" name="program" required onchange="updateYears()">
+                            <option value="">Select Program</option>
+                            {% for prog in programs %}
+                                <option value="{{ prog }}" {% if selected_program == prog %}selected{% endif %}>{{ prog }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Year *</label>
+                        <select id="year" name="year" required onchange="updateSections()">
+                            <option value="">Select Year</option>
+                            {% if selected_program and selected_program in programs %}
+                                {% for y in programs[selected_program].years %}
+                                    <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="section">Section *</label>
+                        <select id="section" name="section" required>
+                            <option value="">Select Section</option>
+                            {% if selected_program and selected_program in programs %}
+                                {% for s in programs[selected_program].sections %}
+                                    <option value="{{ s }}" {% if selected_section == s %}selected{% endif %}>{{ s }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="month">Month *</label>
+                        <select id="month" name="month" required>
+                            <option value="">Select Month</option>
+                            <option value="1" {% if selected_month == 1 %}selected{% endif %}>January</option>
+                            <option value="2" {% if selected_month == 2 %}selected{% endif %}>February</option>
+                            <option value="3" {% if selected_month == 3 %}selected{% endif %}>March</option>
+                            <option value="4" {% if selected_month == 4 %}selected{% endif %}>April</option>
+                            <option value="5" {% if selected_month == 5 %}selected{% endif %}>May</option>
+                            <option value="6" {% if selected_month == 6 %}selected{% endif %}>June</option>
+                            <option value="7" {% if selected_month == 7 %}selected{% endif %}>July</option>
+                            <option value="8" {% if selected_month == 8 %}selected{% endif %}>August</option>
+                            <option value="9" {% if selected_month == 9 %}selected{% endif %}>September</option>
+                            <option value="10" {% if selected_month == 10 %}selected{% endif %}>October</option>
+                            <option value="11" {% if selected_month == 11 %}selected{% endif %}>November</option>
+                            <option value="12" {% if selected_month == 12 %}selected{% endif %}>December</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="year_val">Year (Calendar) *</label>
+                        <select id="year_val" name="year_val" required>
+                            <option value="">Select Year</option>
+                            {% for y in range(2023, 2027) %}
+                                <option value="{{ y }}" {% if selected_year_val == y %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Generate Report</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {% if selected_program %}
+            <div class="stats-summary">
+                <h3>Report Summary</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <strong>Total Students</strong>
+                        <span>{{ total_students }} students in {{ selected_program }} Year {{ selected_year }} Section {{ selected_section }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>Report Period</strong>
+                        <span>{% set months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] %}
+                        {{ months[selected_month - 1] }} {{ selected_year_val }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>Status</strong>
+                        <span>{% if total_students > 0 %}All students included{% else %}No data available{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if attendance_data %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Present Days</th>
+                            <th>Total Days</th>
+                            <th>Attendance %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance_data %}
+                            <tr>
+                                <td><strong>{{ record[2] }}</strong></td>
+                                <td>{{ record[0] }}</td>
+                                <td>{{ record[1] }}</td>
+                                <td>{{ record[3] or 0 }}</td>
+                                <td>{{ record[4] or 0 }}</td>
+                                <td>
+                                    <div class="percentage {% if record[5] >= 75 %}high{% elif record[5] >= 50 %}medium{% else %}low{% endif %}">
+                                        {{ record[5] or 0 }}%
+                                    </div>
+                                    {% if record[4] %}
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: {{ record[5] or 0 }}%"></div>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% elif total_students == 0 %}
+                <div class="no-data">
+                    <p>No students found for {{ selected_program }} Year {{ selected_year }} Section {{ selected_section }}</p>
+                </div>
+            {% else %}
+                <div class="no-data">
+                    <p>No attendance data found for the selected period</p>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <div class="footer">
+            <a href="/dashboard" class="back-button">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const PROGRAMS = {{ programs | tojson }};
+
+        function updateYears() {
+            const program = document.getElementById('program').value;
+            const yearSelect = document.getElementById('year');
+            const sectionSelect = document.getElementById('section');
+            
+            if (!program) {
+                yearSelect.innerHTML = '<option value="">Select Year</option>';
+                sectionSelect.innerHTML = '<option value="">Select Section</option>';
+                return;
+            }
+            
+            const years = PROGRAMS[program].years;
+            let yearHtml = '<option value="">Select Year</option>';
+            years.forEach(y => {
+                const selected = y == '{{ selected_year }}' ? 'selected' : '';
+                yearHtml += `<option value="${y}" ${selected}>${y}</option>`;
+            });
+            yearSelect.innerHTML = yearHtml;
+            updateSections();
+        }
+
+        function updateSections() {
+            const program = document.getElementById('program').value;
+            const year = document.getElementById('year').value;
+            const sectionSelect = document.getElementById('section');
+
+            if (!program || !year) {
+                sectionSelect.innerHTML = '<option value="">Select Section</option>';
+                return;
+            }
+
+            const sections = PROGRAMS[program].sections;
+            let sectionHtml = '<option value="">Select Section</option>';
+            sections.forEach(s => {
+                const selected = s == '{{ selected_section }}' ? 'selected' : '';
+                sectionHtml += `<option value="${s}" ${selected}>${s}</option>`;
+            });
+            sectionSelect.innerHTML = sectionHtml;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const program = document.getElementById('program').value;
+            if (program) {
+                updateYears();
+            }
+        });
+    </script>
+</body>
+</html>

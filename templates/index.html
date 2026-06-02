@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Face Recognition Attendance System</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 50px;
+    }
+
+    .header h1 {
+        font-size: 42px;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .header p {
+        font-size: 18px;
+        opacity: 0.95;
+    }
+
+    .cards-grid {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .admin-card {
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .admin-card .card-header {
+        padding: 20px;
+        text-align: center;
+        color: white;
+        font-size: 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .admin-card .card-body {
+        padding: 22px;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .card-description {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        font-size: 15px;
+    }
+
+    .features-list {
+        list-style: none;
+        margin: 0;
+    }
+
+    .features-list li {
+        padding: 8px 0;
+        color: #555;
+        font-size: 14px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .features-list li:last-child {
+        border-bottom: none;
+    }
+
+    .features-list li:before {
+        content: "\2713 ";
+        color: #667eea;
+        font-weight: bold;
+        margin-right: 8px;
+    }
+
+    .button-container {
+        margin-top: 15px;
+    }
+
+    .button-container a {
+        display: block;
+        text-decoration: none;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .top-corner-details {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+        z-index: 1000;
+        min-width: 230px;
+        border-left: 4px solid #667eea;
+        padding: 10px 12px;
+    }
+
+    .top-corner-details summary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 20px;
+        color: #222;
+        outline: none;
+        list-style: none;
+    }
+
+    .top-corner-details summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .details-content {
+        margin-top: 10px;
+    }
+
+    .top-corner-details:not([open]) .details-content {
+        display: none;
+    }
+
+    .details-content p {
+        margin: 6px 0;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .details-content a {
+        color: #764ba2;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .details-content a:hover {
+        text-decoration: underline;
+    }
+
+    .footer {
+        text-align: center;
+        color: white;
+        margin-top: 40px;
+        opacity: 0.9;
+        font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .top-corner-details {
+            position: static;
+            margin: 0 auto 20px auto;
+            max-width: 420px;
+        }
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <details class="top-corner-details">
+        <summary title="Admin Details">&#9662;</summary>
+        <div class="details-content">
+            <p><strong>Admin ID:</strong> admin</p>
+            <p><strong>Password:</strong> admin123</p>
+            <p><strong>Logout:</strong> <a href="/logout">Click here</a></p>
+        </div>
+    </details>
+
+    <div class="header">
+        <h1>Face Recognition Attendance System</h1>
+        <p>Streamlined attendance management using facial recognition technology</p>
+    </div>
+
+    <div class="cards-grid">
+        <div class="card admin-card">
+            <div class="card-header">Admin Panel</div>
+            <div class="card-body">
+                <div class="card-title">Admin Panel</div>
+                <p class="card-description">Manage students, generate registration links, mark attendance, and view reports.</p>
+
+                <ul class="features-list">
+                    <li>Register students</li>
+                    <li>Generate registration links</li>
+                    <li>Mark attendance manually</li>
+                    <li>Photo-based attendance</li>
+                    <li>View reports</li>
+                    <li>Student statistics</li>
+                </ul>
+
+                <div class="button-container">
+                    <a href="/admin_login"><button class="btn">Admin Login</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2026 Face Recognition Attendance System. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

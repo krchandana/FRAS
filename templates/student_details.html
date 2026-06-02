@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Student Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            align-self: flex-end;
+            margin-top: 23px;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+        }
+
+        .students-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr {
+            transition: background-color 0.3s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .student-id {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .program-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .program-mca {
+            background-color: #e8f0ff;
+            color: #0052cc;
+        }
+
+        .program-bca {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .section-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .no-students {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .class-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #764ba2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .back-button:hover {
+            background-color: #5f3a7d;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .summary-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            padding: 8px 12px;
+            font-size: 13px;
+            transition: background-color 0.3s;
+            margin: 0; /* Override default button margin */
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .edit-btn {
+            background-color: #28a745;
+            padding: 8px 12px;
+            font-size: 13px;
+            margin: 0 8px 0 0;
+        }
+        .edit-btn:hover {
+            background-color: #218838;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .filter-section, .back-button, .actions-col {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>👥 Student Details by Class</h1>
+
+        <div class="filter-section">
+            <h2>Select Class to View Student Details</h2>
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="program">Program:</label>
+                        <select id="program" name="program" required onchange="updateYears()">
+                            <option value="">Select Program</option>
+                            {% for program in programs %}
+                            <option value="{{ program }}">{{ program }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="year">Year:</label>
+                        <select id="year" name="year" required>
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="section">Section:</label>
+                        <select id="section" name="section" required>
+                            <option value="">Select Section</option>
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Load Students</button>
+                </div>
+            </form>
+        </div>
+
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        {% if students %}
+        <div class="class-header">
+            📚 {{ selected_program }} - Year {{ selected_year }} - Section {{ selected_section }}
+        </div>
+
+        <div class="students-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Program</th>
+                        <th>Year</th>
+                        <th>Section</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th class="actions-col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td><span class="student-id">{{ student[0] }}</span></td>
+                        <td><strong>{{ student[1] }}</strong></td>
+                        <td><span class="program-badge program-{{ student[2]|lower }}">{{ student[2] }}</span></td>
+                        <td><strong>{{ student[3] }}</strong></td>
+                        <td><span class="section-badge">{{ student[4] }}</span></td>
+                        <td>{{ student[5] if student[5] else '-' }}</td>
+                        <td>{{ student[6] if student[6] else '-' }}</td>
+                        <td class="actions-col">
+                            <a href="{{ url_for('edit_student', student_id=student[0]) }}" style="display:inline;">
+                                <button type="button" class="edit-btn">Edit</button>
+                            </a>
+                            <form action="{{ url_for('delete_student_route', student_id=student[0]) }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this student and all their records? This action cannot be undone.');" style="display:inline;">
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary-box">
+            <h3>📊 Class Summary</h3>
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ students|length }}</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ selected_program }}</div>
+                    <div class="stat-label">Program</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">Year {{ selected_year }}</div>
+                    <div class="stat-label">Academic Year</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">Section {{ selected_section }}</div>
+                    <div class="stat-label">Class Section</div>
+                </div>
+            </div>
+        </div>
+
+        {% elif selected_program %}
+        <div class="no-students">
+            <p>No students found for the selected class. Please select a different class or register students first.</p>
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            <a href="/dashboard" class="back-button">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const programs = {{ programs | tojson }};
+
+        function updateYears() {
+            const program = document.getElementById('program').value;
+            const yearSelect = document.getElementById('year');
+
+            yearSelect.innerHTML = '<option value="">Select Year</option>';
+
+            if (program && programs[program]) {
+                programs[program].years.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = 'Year ' + year;
+                    yearSelect.appendChild(option);
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

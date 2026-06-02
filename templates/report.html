@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Attendance Mark Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+        }
+
+        .title-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            color: #333;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .section-icons {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .section-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            color: #333;
+            border: 2px solid #e7e7e7;
+            background: #fafafa;
+        }
+
+        .section-link.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .section-icon {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .report-section {
+            margin-top: 20px;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .student-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .section-content {
+            background: white;
+            padding: 0;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-right: 1px solid #eee;
+        }
+
+        th:last-child {
+            border-right: none;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
+        }
+
+        td:last-child {
+            border-right: none;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .student-id {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .status-present {
+            color: #1e7e34;
+            font-weight: 600;
+        }
+
+        .status-absent {
+            color: #b21f2d;
+            font-weight: 600;
+        }
+
+        .btn-delete {
+            margin-top: 0;
+            padding: 8px 12px;
+            font-size: 12px;
+            background: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background: #b52a37;
+        }
+
+        .no-data {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #764ba2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .back-button:hover {
+            background-color: #5f3a7d;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .filter-section,
+            .back-button,
+            .btn-delete {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Attendance Mark Sheet</h1>
+
+        <div class="filter-section">
+            <h2>Select Program and Year</h2>
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="program">Program:</label>
+                        <select id="program" name="program" required onchange="updateYears()">
+                            <option value="">Select Program</option>
+                            {% for program in programs %}
+                            <option value="{{ program }}" {% if selected_program == program %}selected{% endif %}>{{ program }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="year">Year:</label>
+                        <select id="year" name="year" required>
+                            <option value="">Select Year</option>
+                            {% if selected_program and selected_program in programs %}
+                                {% for y in programs[selected_program].years %}
+                                <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>Year {{ y }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="section">Section:</label>
+                        <select id="section" name="section">
+                            <option value="">All Sections</option>
+                            {% if selected_program and selected_program in programs %}
+                                {% for sec in programs[selected_program].sections %}
+                                <option value="{{ sec }}" {% if selected_section == sec %}selected{% endif %}>Section {{ sec }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <button type="submit">Show Mark Sheet</button>
+                </div>
+            </form>
+        </div>
+
+        {% if selected_program %}
+        <div class="title-header">
+            {{ selected_program }} - Year {{ selected_year }}{% if selected_section %} - Section {{ selected_section }}{% else %} - All Sections{% endif %} - Daily Attendance (Date and Time)
+        </div>
+
+        <div class="section-icons">
+            <a class="section-link {% if not selected_section %}active{% endif %}" href="/attendance_marksheet?program={{ selected_program }}&year={{ selected_year }}">
+                <span class="section-icon">&#128218;</span> All Sections
+            </a>
+            {% for sec in programs[selected_program].sections %}
+            <a class="section-link {% if selected_section == sec %}active{% endif %}" href="/attendance_marksheet?program={{ selected_program }}&year={{ selected_year }}&section={{ sec }}">
+                <span class="section-icon">&#128214;</span> Section {{ sec }}
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if attendance_sheets %}
+            {% for sheet in attendance_sheets %}
+            <div class="report-section">
+                <div class="section-header">
+                    Section {{ sheet.section }} | {{ sheet.date }} {{ sheet.time }} | {{ sheet.subject_name }} | {{ sheet.period_duration }}
+                    <div class="header-actions">
+                        <span class="student-count">Present: {{ sheet.present_count }} | Absent: {{ sheet.absent_count }}</span>
+                        <form method="POST" action="/delete_attendance_sheet" onsubmit="return confirm('Delete this attendance sheet? This cannot be undone.');">
+                            <input type="hidden" name="program" value="{{ selected_program }}">
+                            <input type="hidden" name="year" value="{{ selected_year }}">
+                            <input type="hidden" name="section" value="{{ sheet.section }}">
+                            <input type="hidden" name="date" value="{{ sheet.date }}">
+                            <input type="hidden" name="time" value="{{ sheet.time }}">
+                            <input type="hidden" name="subject_name" value="{{ sheet.subject_name }}">
+                            <input type="hidden" name="period_duration" value="{{ sheet.period_duration }}">
+                            <input type="hidden" name="selected_section_filter" value="{{ selected_section if selected_section else '' }}">
+                            <button type="submit" class="btn-delete">Delete Sheet</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rec in sheet.records %}
+                            <tr>
+                                <td><span class="student-id">{{ rec.student_id }}</span></td>
+                                <td><strong>{{ rec.name }}</strong></td>
+                                <td>
+                                    <span class="{% if rec.status == 'Present' %}status-present{% else %}status-absent{% endif %}">
+                                        {{ rec.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="no-data">
+            <p>No attendance records found for {{ selected_program }} Year {{ selected_year }}.</p>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <div class="footer">
+            <a href="/dashboard" class="back-button">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const programs = {{ programs | tojson }};
+
+        function updateYears() {
+            const program = document.getElementById('program').value;
+            const yearSelect = document.getElementById('year');
+            const sectionSelect = document.getElementById('section');
+
+            yearSelect.innerHTML = '<option value="">Select Year</option>';
+            sectionSelect.innerHTML = '<option value="">All Sections</option>';
+
+            if (program && programs[program]) {
+                programs[program].years.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = 'Year ' + year;
+                    yearSelect.appendChild(option);
+                });
+
+                programs[program].sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section;
+                    option.textContent = 'Section ' + section;
+                    sectionSelect.appendChild(option);
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

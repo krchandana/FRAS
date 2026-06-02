@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>View Student Photos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        button {
+            padding: 10px 25px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            align-self: flex-end;
+            margin-top: 23px;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+        }
+
+        .students-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-container {
+            width: 100%;
+            height: 250px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-container .no-photo {
+            color: #999;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .student-info {
+            padding: 15px;
+        }
+
+        .student-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .student-details {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #777;
+            word-break: break-word;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .no-students {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #764ba2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .back-button:hover {
+            background-color: #5f3a7d;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📸 Student Photos Gallery</h1>
+
+        <div class="filter-section">
+            <h2>Select Class to View Photos</h2>
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="program">Program:</label>
+                        <select id="program" name="program" required onchange="updateYears()">
+                            <option value="">Select Program</option>
+                            {% for program in programs %}
+                            <option value="{{ program }}">{{ program }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="year">Year:</label>
+                        <select id="year" name="year" required>
+                            <option value="">Select Year</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="section">Section:</label>
+                        <select id="section" name="section" required>
+                            <option value="">Select Section</option>
+                            <option value="A">Section A</option>
+                            <option value="B">Section B</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Load Photos</button>
+                </div>
+            </form>
+        </div>
+
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        {% if students %}
+        <div class="students-gallery">
+            {% for student in students %}
+            <div class="student-card">
+                <div class="photo-container" id="photo-{{ student[0] }}">
+                    <div class="no-photo">No photo available</div>
+                </div>
+                <div class="student-info">
+                    <h3>{{ student[1] }}</h3>
+                    <div class="student-details">
+                        <div class="detail-row">
+                            <span class="detail-label">ID:</span>
+                            <span class="detail-value">{{ student[0] }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Program:</span>
+                            <span class="detail-value">{{ student[2] }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Year:</span>
+                            <span class="detail-value">{{ student[3] }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Section:</span>
+                            <span class="detail-value">{{ student[4] }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">{{ student[5] if student[5] else 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% elif selected_program %}
+        <div class="no-students">
+            <p>No students found for the selected class. Please select a different class or register students first.</p>
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            <a href="/dashboard" class="back-button">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const programs = {{ programs | tojson }};
+
+        function updateYears() {
+            const program = document.getElementById('program').value;
+            const yearSelect = document.getElementById('year');
+
+            yearSelect.innerHTML = '<option value="">Select Year</option>';
+
+            if (program && programs[program]) {
+                programs[program].years.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = 'Year ' + year;
+                    yearSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Load student photos
+        function loadStudentPhotos() {
+            const students = document.querySelectorAll('[id^="photo-"]');
+            students.forEach(photoContainer => {
+                const studentId = photoContainer.id.replace('photo-', '');
+                fetch('/api/student_photo/' + studentId)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.photo) {
+                            const img = document.createElement('img');
+                            img.src = 'data:image/jpeg;base64,' + data.photo;
+                            photoContainer.innerHTML = '';
+                            photoContainer.appendChild(img);
+                        }
+                    })
+                    .catch(error => console.error('Error loading photo:', error));
+            });
+        }
+
+        // Load photos when page loads
+        document.addEventListener('DOMContentLoaded', loadStudentPhotos);
+    </script>
+</body>
+
+</html>

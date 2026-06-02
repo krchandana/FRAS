@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Student Registration</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 30px auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #667eea;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: bold;
+    }
+    
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+    
+    input:focus, select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .form-row .form-group {
+        margin-bottom: 0;
+    }
+    
+    /* Face Capture Styles */
+    .face-capture-container {
+        border: 2px dashed #667eea;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        background-color: #f9f9f9;
+    }
+    
+    video {
+        width: 100%;
+        max-width: 400px;
+        border-radius: 8px;
+        background-color: #000;
+        margin-bottom: 15px;
+        display: none;
+    }
+    
+    video.active {
+        display: block;
+    }
+    
+    canvas {
+        display: none;
+    }
+    
+    #facePreview {
+        max-width: 300px;
+        max-height: 300px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: none;
+    }
+    
+    #facePreview.show {
+        display: block;
+    }
+    
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+    
+    button, .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background-color: #667eea;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #764ba2;
+    }
+    
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .btn-success:hover {
+        background-color: #218838;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+    
+    button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+    
+    button[type="submit"]:hover {
+        background-color: #218838;
+    }
+    
+    .message {
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .warning {
+        background-color: #fff3cd;
+        color: #664d03;
+        border: 1px solid #ffe69c;
+    }
+    
+    .info {
+        background-color: #cfe2ff;
+        color: #084298;
+        border: 1px solid #b6d4fe;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        background-color: #dc3545;
+    }
+    
+    .status-indicator.ready {
+        background-color: #28a745;
+    }
+    
+    .face-info {
+        font-size: 13px;
+        color: #666;
+        margin-top: 10px;
+    }
+    
+    .file-upload-container {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    
+    .file-upload-container h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 16px;
+    }
+    
+    .file-upload-container input[type="file"] {
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .camera-help {
+        display: none;
+        margin-top: 15px;
+        background: #fff3cd;
+        border: 1px solid #ffe69c;
+        color: #664d03;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .camera-help h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+    }
+
+    .camera-help ol {
+        margin: 0 0 0 18px;
+    }
+</style>
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>📝 Register Student</h2>
+    
+    {% if success %}
+    <div class="message success">Registration successful!</div>
+    {% if email_warning %}
+    <div class="message warning">{{ email_warning }}</div>
+    {% endif %}
+    
+    <p style="text-align: center; margin-top: 20px;">
+        <a href="/dashboard" class="back-link">&#8592; Back to Dashboard</a>
+    </p>
+    
+    {% else %}
+    {% if error %}
+    <div class="message error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" id="registrationForm">
+        <!-- Personal Information Section -->
+        <div class="form-section">
+            <div class="section-title">👤 Personal Information</div>
+            
+            <div class="form-group">
+                <label for="student_id">Student ID: <span style="color: red;">*</span></label>
+                <input type="text" id="student_id" name="student_id" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Full Name: <span style="color: red;">*</span></label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="voice_passphrase">Voice Passphrase:</label>
+                <input type="text" id="voice_passphrase" name="voice_passphrase" placeholder="e.g. my voice phrase 123">
+            </div>
+        </div>
+        
+        <!-- Academic Information Section -->
+        <div class="form-section">
+            <div class="section-title">🎓 Academic Information</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="program">Program: <span style="color: red;">*</span></label>
+                    <select id="program" name="program" required onchange="updateYears()">
+                        <option value="">Select Program</option>
+                        {% for program in programs %}
+                        <option value="{{ program }}">{{ program }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="year">Year: <span style="color: red;">*</span></label>
+                    <select id="year" name="year" required>
+                        <option value="">Select Year</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="section">Section: <span style="color: red;">*</span></label>
+                <select id="section" name="section" required>
+                    <option value="">Select Section</option>
+                    <option value="A">Section A</option>
+                    <option value="B">Section B</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Face Capture Section -->
+        <div class="form-section">
+            <div class="section-title">📸 Face Capture (Required)</div>
+            
+            <div class="message info">
+                <strong>📌 Instructions:</strong> Choose one of the methods below to capture your face photo. Either use your webcam or upload a photo file. The photo should clearly show your face.
+            </div>
+            
+            <!-- Webcam Capture Section -->
+            <div class="face-capture-container">
+                <h4>📷 Method 1: Webcam Capture</h4>
+                <video id="video" autoplay playsinline></video>
+                <img id="facePreview" src="" alt="Face Preview">
+                
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" onclick="startCamera()">📷 Start Camera</button>
+                    <button type="button" class="btn btn-success" id="captureBtn" onclick="captureFrame()" disabled>✓ Capture Face</button>
+                    <button type="button" class="btn btn-danger" onclick="stopCamera()">⏹ Stop Camera</button>
+                </div>
+                
+                <div class="face-info">
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    <span id="statusText">Face not captured</span>
+                </div>
+
+                <div id="cameraHelp" class="camera-help">
+                    <h4>Camera Permission Fix</h4>
+                    <ol>
+                        <li>Click the lock/info icon near the browser URL.</li>
+                        <li>Set Camera to Allow for this site.</li>
+                        <li>Reload this page and click Start Camera again.</li>
+                        <li>If still blocked, open browser camera settings and remove this site from blocked list.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- File Upload Section -->
+            <div class="file-upload-container">
+                <h4>📁 Method 2: Upload Photo File</h4>
+                <div class="form-group">
+                    <label for="photoFile">Select Photo File:</label>
+                    <input type="file" id="photoFile" name="photoFile" accept="image/*" onchange="previewUploadedPhoto()">
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        Supported formats: JPG, PNG, GIF. Max size: 5MB. Photo should clearly show your face.
+                    </small>
+                </div>
+                
+                <div id="filePreviewContainer" style="display: none;">
+                    <img id="filePreview" src="" alt="Uploaded Photo Preview" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-top: 10px; border: 2px solid #ddd;">
+                    <div class="button-group" style="margin-top: 10px;">
+                        <button type="button" class="btn btn-success" onclick="useUploadedPhoto()">✓ Use This Photo</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearUploadedPhoto()">🗑 Clear</button>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="hidden" id="face_image" name="face_image" value="">
+        </div>
+        
+        <button type="submit">✓ Register Student</button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 20px;">
+        <a href="/dashboard" class="back-link">&#8592; Back to Dashboard</a>
+    </p>
+    {% endif %}
+</div>
+
+<script>
+    const programs = {{ programs | tojson }};
+    let stream = null;
+    let faceCaptured = false;
+    
+    function updateYears() {
+        const program = document.getElementById('program').value;
+        const yearSelect = document.getElementById('year');
+        
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        
+        if (program && programs[program]) {
+            programs[program].years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = 'Year ' + year;
+                yearSelect.appendChild(option);
+            });
+        }
+    }
+    
+    async function startCamera() {
+        try {
+            const video = document.getElementById('video');
+            hideCameraHelp();
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Camera API is not supported in this browser.');
+                return;
+            }
+            if (!window.isSecureContext) {
+                alert('Camera access requires a secure page. Open this project with http://localhost:5000 or http://127.0.0.1:5000, or upload a photo instead.');
+                showCameraHelp();
+                return;
+            }
+
+            // Stop previous stream before requesting a new one
+            stopCamera();
+
+            // Try preferred constraints first, then fallback to simple video:true
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                    audio: false
+                });
+            } catch (err) {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            }
+
+            video.srcObject = stream;
+            video.play();
+            video.classList.add('active');
+            document.getElementById('captureBtn').disabled = false;
+        } catch (error) {
+            if (error.name === 'NotAllowedError') {
+                alert('Camera permission is blocked. Allow camera access in browser site settings, then refresh.');
+                showCameraHelp();
+            } else {
+                alert('Camera not available: ' + error.message);
+            }
+        }
+    }
+
+    function showCameraHelp() {
+        const help = document.getElementById('cameraHelp');
+        if (help) help.style.display = 'block';
+    }
+
+    function hideCameraHelp() {
+        const help = document.getElementById('cameraHelp');
+        if (help) help.style.display = 'none';
+    }
+    
+    function captureFrame() {
+        const video = document.getElementById('video');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0);
+        
+        const imageData = canvas.toDataURL('image/jpeg');
+        document.getElementById('face_image').value = imageData;
+        
+        const facePreview = document.getElementById('facePreview');
+        facePreview.src = imageData;
+        facePreview.classList.add('show');
+        
+        faceCaptured = true;
+        document.getElementById('statusIndicator').classList.add('ready');
+        document.getElementById('statusText').textContent = '✓ Face captured successfully!';
+        
+        stopCamera();
+    }
+    
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            document.getElementById('video').classList.remove('active');
+            document.getElementById('captureBtn').disabled = true;
+        }
+    }
+    
+    function previewUploadedPhoto() {
+        const fileInput = document.getElementById('photoFile');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            clearUploadedPhoto();
+            return;
+        }
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPG, PNG, or GIF).');
+            clearUploadedPhoto();
+            return;
+        }
+        
+        // Validate file size (5MB max)
+        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        if (file.size > maxSize) {
+            alert('File size must be less than 5MB.');
+            clearUploadedPhoto();
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const filePreview = document.getElementById('filePreview');
+            filePreview.src = e.target.result;
+            document.getElementById('filePreviewContainer').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    function useUploadedPhoto() {
+        const filePreview = document.getElementById('filePreview');
+        const imageData = filePreview.src;
+        
+        document.getElementById('face_image').value = imageData;
+        document.getElementById('facePreview').src = imageData;
+        document.getElementById('facePreview').classList.add('show');
+        
+        faceCaptured = true;
+        document.getElementById('statusIndicator').classList.add('ready');
+        document.getElementById('statusText').textContent = '✓ Photo uploaded successfully!';
+        
+        // Clear the file input and hide preview
+        document.getElementById('photoFile').value = '';
+        document.getElementById('filePreviewContainer').style.display = 'none';
+    }
+    
+    function clearUploadedPhoto() {
+        document.getElementById('photoFile').value = '';
+        document.getElementById('filePreviewContainer').style.display = 'none';
+        document.getElementById('filePreview').src = '';
+    }
+    
+    const registrationForm = document.getElementById('registrationForm');
+    if (registrationForm) {
+        registrationForm.addEventListener('submit', function(e) {
+            if (!faceCaptured) {
+                e.preventDefault();
+                alert('Please capture your face using either the webcam or by uploading a photo file!');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
+
+
+

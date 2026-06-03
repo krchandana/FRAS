@@ -8,9 +8,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY . .
+COPY requirements.txt .
 
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN pip install gunicorn
 
-CMD gunicorn --bind 0.0.0.0:$PORT app:app
+COPY . .
+
+CMD ["python", "app.py"]

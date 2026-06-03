@@ -1,15 +1,7 @@
-import mysql.connector
-
-conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="root123",
-    database="fras"
-)
 from flask import Flask, render_template, request, jsonify, redirect, session, send_file
 from werkzeug.exceptions import RequestEntityTooLarge
 from urllib.parse import urlencode
-from database import (add_student, get_students, mark_attendance, 
+from database import (connect_db, add_student, get_students, mark_attendance, 
                       get_students_by_program_year, get_students_by_section, 
                       get_attendance_by_section, get_student_attendance_summary,
                       process_classroom_photo, get_student_face_image, get_student_statistics,
@@ -1781,19 +1773,12 @@ def logout():
     return redirect('/')
 @app.route('/db-test')
 def db_test():
-    import mysql.connector
-
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="your_password",
-        database="fras"
-    )
-
     try:
+        conn = connect_db()
         if conn.is_connected():
             conn.close()
             return "DATABASE CONNECTED SUCCESSFULLY"
+        return "DATABASE CONNECTION FAILED", 500
     except Exception as e:
         return f"DATABASE CONNECTION ERROR: {e}", 500
     return "DATABASE CONNECTION FAILED", 500

@@ -331,6 +331,7 @@
                     <button type="button" class="btn btn-secondary" onclick="recaptureFace()" id="recaptureBtn" style="display: none;">Recapture</button>
                     <button type="button" class="btn btn-secondary" onclick="closeCamera()" id="closeBtn" style="display: none;">Close Camera</button>
                 </div>
+                <p style="font-size: 13px; color: #666; margin-top: 10px;">Note: Webcam capture works best on <strong>localhost</strong> or <strong>127.0.0.1</strong>. If you use a network IP like <code>192.168.x.x</code>, browser security may block camera access.</p>
 
                 <div id="cameraHelp" class="camera-help">
                     <h4>Camera Permission Fix</h4>
@@ -408,6 +409,8 @@
             }
 
             camera.srcObject = stream;
+            camera.setAttribute('playsinline', '');
+            await camera.play();
             camera.style.display = 'block';
             facePreview.classList.remove('show');
             captureBtn.style.display = 'inline-block';
@@ -441,7 +444,10 @@
         const faceImage = document.getElementById('faceImage');
         const faceStatus = document.getElementById('faceStatus');
 
-        if (!camera.srcObject) return;
+        if (!camera.srcObject || camera.videoWidth === 0 || camera.videoHeight === 0) {
+            faceStatus.innerHTML = '<span style="color: #dc3545;">Camera is not ready yet. Please try starting it again.</span>';
+            return;
+        }
 
         const context = canvas.getContext('2d');
         canvas.width = camera.videoWidth;

@@ -581,8 +581,13 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             const filePreview = document.getElementById('filePreview');
-            filePreview.src = e.target.result;
+            const imageData = e.target.result;
+            filePreview.src = imageData;
+            document.getElementById('face_image').value = imageData;
             document.getElementById('filePreviewContainer').style.display = 'block';
+            faceCaptured = true;
+            document.getElementById('statusIndicator').classList.add('ready');
+            document.getElementById('statusText').textContent = '✓ Photo loaded successfully!';
         };
         reader.readAsDataURL(file);
     }
@@ -591,15 +596,20 @@
         const filePreview = document.getElementById('filePreview');
         const imageData = filePreview.src;
         
+        if (!imageData) {
+            alert('No photo selected yet. Please choose a file first.');
+            return;
+        }
+        
         document.getElementById('face_image').value = imageData;
         document.getElementById('facePreview').src = imageData;
         document.getElementById('facePreview').classList.add('show');
         
         faceCaptured = true;
         document.getElementById('statusIndicator').classList.add('ready');
-        document.getElementById('statusText').textContent = '✓ Photo uploaded successfully!';
+        document.getElementById('statusText').textContent = '✓ Photo ready for registration!';
         
-        // Clear the file input and hide preview
+        // Clear the file input and hide preview container after use
         document.getElementById('photoFile').value = '';
         document.getElementById('filePreviewContainer').style.display = 'none';
     }
@@ -608,6 +618,10 @@
         document.getElementById('photoFile').value = '';
         document.getElementById('filePreviewContainer').style.display = 'none';
         document.getElementById('filePreview').src = '';
+        document.getElementById('face_image').value = '';
+        faceCaptured = false;
+        document.getElementById('statusIndicator').classList.remove('ready');
+        document.getElementById('statusText').textContent = 'Face not captured';
     }
     
     const registrationForm = document.getElementById('registrationForm');

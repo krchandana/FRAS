@@ -1,14 +1,20 @@
 import mysql.connector
 from mysql.connector import Error
+import os
 
 def setup_database():
     """Setup the database schema for attendance system"""
     try:
+        db_host = os.environ.get('DB_HOST', 'localhost')
+        db_user = os.environ.get('DB_USER', 'root')
+        db_password = os.environ.get('DB_PASSWORD', 'root123')
+        db_name = os.environ.get('DB_NAME', 'attendance_system')
+
         # Connect to MySQL server
         connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="root123"
+            host=db_host,
+            user=db_user,
+            password=db_password
         )
         
         cursor = connection.cursor()
@@ -20,10 +26,10 @@ def setup_database():
         # Connect to the attendance_system database
         connection.close()
         connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="root123",
-            database="attendance_system"
+            host=db_host,
+            user=db_user,
+            password=db_password,
+            database=db_name
         )
         
         cursor = connection.cursor()

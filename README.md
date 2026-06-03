@@ -80,10 +80,22 @@ The current local database defaults are:
 ```text
 host: localhost
 user: root
+password: root123
 database: attendance_system
 ```
 
-Update the database password in `database.py` and `database_setup.py` if your local MySQL password is different.
+You can override these values with environment variables:
+
+```powershell
+$env:DB_HOST = 'localhost'
+$env:DB_USER = 'root'
+$env:DB_PASSWORD = 'root123'
+$env:DB_NAME = 'attendance_system'
+```
+
+The app reads `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` from the environment, with the above defaults if they are not set.
+
+Update your MySQL credentials in environment variables rather than editing `database.py` or `database_setup.py` directly.
 
 4. Create the database schema.
 

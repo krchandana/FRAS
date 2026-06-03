@@ -12,10 +12,10 @@ from PIL import Image, ImageOps
 # MySQL connection
 def connect_db():
     db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="root123",
-        database="attendance_system"
+        host=os.environ.get('DB_HOST', 'localhost'),
+        user=os.environ.get('DB_USER', 'root'),
+        password=os.environ.get('DB_PASSWORD', 'root123'),
+        database=os.environ.get('DB_NAME', 'attendance_system')
     )
     return db
 

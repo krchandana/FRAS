@@ -116,10 +116,28 @@ python app.py
 Open the app in your browser:
 
 ```text
-http://localhost:5000
+http://localhost:8080
 ```
 
-The Flask app runs on `0.0.0.0:5000` in debug mode by default.
+### Optional: Run with HTTPS for browser camera access
+
+If you need secure local access for the camera, enable HTTPS with a self-signed certificate:
+
+```powershell
+$env:USE_HTTPS = 'true'
+python app.py
+```
+
+Then open either:
+
+```text
+https://localhost:8080
+https://127.0.0.1:8080
+```
+
+Accept the browser warning for the self-signed certificate.
+
+The Flask app runs on `0.0.0.0:8080` by default.
 
 ## Common Workflows
 

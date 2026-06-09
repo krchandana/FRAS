@@ -1784,6 +1784,28 @@ def db_test():
     return "DATABASE CONNECTION FAILED", 500
 import os
 
+
+def get_ssl_context():
+    """Return an SSL context for HTTPS if USE_HTTPS is enabled."""
+    use_https = os.environ.get("USE_HTTPS", "false").lower() in ("1", "true", "yes", "on")
+    if not use_https:
+        return None
+
+    cert_path = os.environ.get("SSL_CERT_PATH")
+    key_path = os.environ.get("SSL_KEY_PATH")
+    if cert_path and key_path:
+        if os.path.exists(cert_path) and os.path.exists(key_path):
+            return (cert_path, key_path)
+        print(f"SSL cert/key files not found: {cert_path}, {key_path}")
+
+    print("Starting Flask with adhoc SSL context. Accept the self-signed certificate in your browser.")
+    return "adhoc"
+
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    ssl_context = get_ssl_context()
+    if ssl_context:
+        app.run(host='0.0.0.0', port=port, debug=False, ssl_context=ssl_context)
+    else:
+       app.run(host='0.0.0.0', port=port, debug=False)

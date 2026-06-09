@@ -320,7 +320,7 @@
             <div style="padding: 15px; background: white; border-radius: 5px; border: 1px solid #e9ecef;">
                 <h4 style="margin: 0 0 10px 0; color: #333;">Use Webcam</h4>
                 <div class="camera-container">
-                    <video id="camera" autoplay style="display: none;"></video>
+                    <video id="camera" autoplay playsinline muted style="display: none;"></video>
                     <canvas id="faceCanvas" style="display: none;"></canvas>
                     <img id="facePreview" alt="Face preview">
                 </div>
@@ -409,7 +409,9 @@
             }
 
             camera.srcObject = stream;
+            camera.muted = true;
             camera.setAttribute('playsinline', '');
+            await waitForVideoPlayback(camera);
             await camera.play();
             camera.style.display = 'block';
             facePreview.classList.remove('show');
@@ -437,6 +439,17 @@
         if (help) help.style.display = 'none';
     }
 
+    function waitForVideoPlayback(video) {
+        return new Promise((resolve, reject) => {
+            if (video.readyState >= 2) {
+                resolve();
+                return;
+            }
+            video.onloadedmetadata = () => resolve();
+            video.onerror = reject;
+        });
+    }
+
     function captureFace() {
         const camera = document.getElementById('camera');
         const canvas = document.getElementById('faceCanvas');
@@ -449,6 +462,10 @@
             return;
         }
 
+        if (!camera.videoWidth || !camera.videoHeight) {
+            faceStatus.innerHTML = '<span style="color: #dc3545;">Camera image is not ready yet. Please start the camera again.</span>';
+            return;
+        }
         const context = canvas.getContext('2d');
         canvas.width = camera.videoWidth;
         canvas.height = camera.videoHeight;

@@ -1,4 +1,5 @@
 import os
+import ssl
 import smtplib
 from email.message import EmailMessage
 
@@ -47,11 +48,16 @@ def send_email(recipient, subject, body, is_html=False):
         msg.set_content(body)
 
     try:
+        context = ssl.create_default_context()
         with smtplib.SMTP(settings['server'], settings['port']) as smtp:
+            smtp.ehlo()
             if settings['use_tls']:
-                smtp.starttls()
+                smtp.starttls(context=context)
+                smtp.ehlo()
             smtp.login(settings['username'], settings['password'])
             smtp.send_message(msg)
         return True, None
+    except smtplib.SMTPAuthenticationError as exc:
+        return False, f'Authentication failed. Check MAIL_USERNAME/MAIL_PASSWORD and use a Gmail app password if needed: {exc}'
     except Exception as exc:
         return False, str(exc)

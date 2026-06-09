@@ -105,7 +105,7 @@ python database_setup.py
 
 5. Optional: configure email.
 
-Update `mail_config.py` with your SMTP account details if you want registration emails to be sent. For Gmail, use an app password instead of your normal account password.
+Update `mail_config.py` with your SMTP account details if you want registration emails to be sent. For Gmail, use an app password instead of your normal account password. Also make sure `MAIL_USE_TLS = True` and `MAIL_PORT = 587` when using Gmail SMTP.
 
 ## Run the App
 

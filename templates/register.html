@@ -474,12 +474,9 @@
         try {
             const video = document.getElementById('video');
             hideCameraHelp();
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('Camera API is not supported in this browser.');
-                return;
-            }
-            if (!window.isSecureContext) {
-                alert('Camera access requires a secure page. Open this project with http://localhost:5000 or http://127.0.0.1:5000, or upload a photo instead.');
+
+            if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                alert('Camera access requires a secure page. Use localhost or 127.0.0.1, or serve this site over HTTPS if you need to use a LAN IP address. Otherwise upload a photo instead.');
                 showCameraHelp();
                 return;
             }
@@ -487,14 +484,13 @@
             // Stop previous stream before requesting a new one
             stopCamera();
 
-            // Try preferred constraints first, then fallback to simple video:true
             try {
-                stream = await navigator.mediaDevices.getUserMedia({
+                stream = await getCameraStream({
                     video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
                     audio: false
                 });
             } catch (err) {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                stream = await getCameraStream({ video: true, audio: false });
             }
 
             video.srcObject = stream;
@@ -522,6 +518,19 @@
     function hideCameraHelp() {
         const help = document.getElementById('cameraHelp');
         if (help) help.style.display = 'none';
+    }
+
+    function getCameraStream(constraints) {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            return navigator.mediaDevices.getUserMedia(constraints);
+        }
+
+        const legacyGetUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        if (legacyGetUserMedia) {
+            return new Promise((resolve, reject) => legacyGetUserMedia.call(navigator, constraints, resolve, reject));
+        }
+
+        return Promise.reject(new Error('Camera API is not supported in this browser.'));
     }
 
     function waitForVideoPlayback(video) {

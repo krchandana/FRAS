@@ -468,17 +468,13 @@
         const camera = document.getElementById('camera');
         const controls = document.getElementById('cameraControls');
 
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert('Camera API is not supported in this browser. Please upload a classroom photo instead.');
-            return;
-        }
-        if (!window.isSecureContext) {
-            alert('Camera needs a secure page. Open this project with http://localhost:5000 or http://127.0.0.1:5000, or upload a classroom photo instead.');
+        if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            alert('Camera needs a secure page. Use localhost or 127.0.0.1, or serve this site over HTTPS for your LAN IP. Otherwise upload a classroom photo instead.');
             return;
         }
         
         try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const mediaStream = await getCameraStream({ video: true });
             stream = mediaStream;
             camera.srcObject = mediaStream;
             camera.muted = true;
@@ -539,6 +535,19 @@
             video.onloadedmetadata = () => resolve();
             video.onerror = reject;
         });
+    }
+
+    function getCameraStream(constraints) {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            return navigator.mediaDevices.getUserMedia(constraints);
+        }
+
+        const legacyGetUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        if (legacyGetUserMedia) {
+            return new Promise((resolve, reject) => legacyGetUserMedia.call(navigator, constraints, resolve, reject));
+        }
+
+        return Promise.reject(new Error('Camera API is not supported in this browser.'));
     }
     document.getElementById('photoInput').addEventListener('change', handleFileUpload);
 </script>
